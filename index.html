@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026豐譽員旅-沖繩放鬆遊四日 互動攻略</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 35vh;
+            max-height: 350px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 300px;
+            }
+        }
+        body {
+            background-color: #faf8f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+<!-- Chosen Palette: Okinawa Sunset & Ocean Splash (Warm Orange, Soft Coral, Calming Teal, Warm Neutral Background) -->
+<!-- Application Structure Plan: The SPA uses a dashboard-like tabbed navigation structure. Instead of a linear PDF, the information is chunked into four functional views: 'Trip Overview' for a high-level summary and activity balance, 'Daily Itinerary' for detailed schedule tracking, 'Family Day 3 Plans' specifically tailored for the 7-member family's free day options, and an interactive 'Packing Checklist' derived from the report. This task-oriented architecture allows the family to quickly find schedule details on the go, discuss free-day options interactively, and actively track their packing progress, vastly improving usability over a static document. -->
+<!-- Visualization & Content Choices: 1. Activity Balance -> Goal: Inform -> Pie Chart (Chart.js) -> Shows the distribution of activities (Shopping, Nature, Culture) so the family knows what to expect. 2. Packing List Progress -> Goal: Change/Interact -> Doughnut Chart (Chart.js) combined with HTML checkboxes -> Allows the family to actively check off items from the PDF's list and see their visual progress, turning a static list into a functional tool. 3. Interactive Tabs -> Goal: Organize -> HTML/JS -> Keeps the interface clean and prevents overwhelming the user with a 16-page PDF all at once. NO SVG/Mermaid used. -->
+<!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+<div id="app" class="max-w-4xl mx-auto bg-white min-h-screen shadow-xl overflow-hidden flex flex-col">
+    
+    <header class="bg-gradient-to-r from-orange-400 to-rose-400 text-white p-6 shadow-md rounded-b-3xl relative z-10">
+        <h1 class="text-3xl font-bold text-center">🌺 2026豐譽員旅：沖繩放鬆遊</h1>
+        <p class="text-center mt-2 text-rose-50 text-lg">7口之家的完美回憶 ✈️ 06/03 - 06/06</p>
+        
+        <nav class="flex overflow-x-auto hide-scrollbar gap-2 mt-6 pb-2 justify-start md:justify-center">
+            <button onclick="switchTab('overview')" id="tab-overview" class="tab-btn px-4 py-2 rounded-full bg-white/20 hover:bg-white/40 whitespace-nowrap font-medium transition-colors">📊 旅程總覽</button>
+            <button onclick="switchTab('itinerary')" id="tab-itinerary" class="tab-btn px-4 py-2 rounded-full bg-white/20 hover:bg-white/40 whitespace-nowrap font-medium transition-colors">📅 每日行程</button>
+            <button onclick="switchTab('day3')" id="tab-day3" class="tab-btn px-4 py-2 rounded-full bg-white/20 hover:bg-white/40 whitespace-nowrap font-medium transition-colors">🚇 Day 3 攻略</button>
+            <button onclick="switchTab('packing')" id="tab-packing" class="tab-btn px-4 py-2 rounded-full bg-white/20 hover:bg-white/40 whitespace-nowrap font-medium transition-colors">🎒 準備清單</button>
+        </nav>
+    </header>
+
+    <main class="flex-1 p-4 md:p-6 overflow-y-auto">
+        
+        <section id="sec-overview" class="hidden">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-orange-600 border-b-2 border-orange-200 pb-2 mb-4">旅程總覽與重點提示</h2>
+                <p class="text-gray-700 leading-relaxed">
+                    本區塊總結了行程手冊中的核心資訊。這趟四天三夜的沖繩之旅，融合了自然生態、當地文化與豐富的購物行程。透過下方的圖表，您可以一目了然地了解這四天行程的活動類型比例，幫助全家人做好體力分配與期待管理。
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="bg-orange-50 rounded-2xl p-5 shadow-sm border border-orange-100">
+                    <h3 class="font-bold text-lg text-orange-800 mb-3">✈️ 航班與集合資訊</h3>
+                    <ul class="space-y-2 text-gray-700">
+                        <li><span class="font-semibold">集合時間：</span>06/03 (三) 13:55</li>
+                        <li><span class="font-semibold">集合地點：</span>桃園機場第二航廈 長榮航空20號櫃檯</li>
+                        <li><span class="font-semibold">去程航班：</span>BR186 (16:25 - 18:55)</li>
+                        <li><span class="font-semibold">回程航班：</span>BR185 (19:55 - 20:30)</li>
+                        <li><span class="font-semibold">住宿飯店：</span>那霸逸林希爾頓 (旭橋站旁)</li>
+                    </ul>
+                </div>
+                <div class="bg-teal-50 rounded-2xl p-5 shadow-sm border border-teal-100">
+                    <h3 class="font-bold text-lg text-teal-800 mb-3">💡 當地資訊與小提醒</h3>
+                    <ul class="space-y-2 text-gray-700">
+                        <li><span class="font-semibold">時差：</span>比台灣快 1 小時</li>
+                        <li><span class="font-semibold">電壓：</span>100伏特 (與台灣雙平腳插座相同)</li>
+                        <li><span class="font-semibold">免稅規定：</span>滿 5000 日圓可享免稅，消耗品不可在日本境內拆封使用。</li>
+                        <li><span class="font-semibold">氣候：</span>6月上旬屬梅雨季，悶熱易陣雨，必備輕薄外套、雨具與推車防雨罩。</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 mb-8">
+                <h3 class="font-bold text-lg text-gray-800 mb-2 text-center">行程活動類型分佈預測</h3>
+                <p class="text-sm text-gray-500 text-center mb-4">依據手冊景點分析，了解體力消耗與活動偏好</p>
+                <div class="chart-container">
+                    <canvas id="activityChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="sec-itinerary" class="hidden">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-teal-600 border-b-2 border-teal-200 pb-2 mb-4">每日行程細節</h2>
+                <p class="text-gray-700 leading-relaxed">
+                    本區塊將旅行社手冊的行程表轉化為可互動的每日卡片。點擊每一天，即可展開詳細的景點介紹、餐食安排，以及專為您 7 口之家（包含長輩與推車孩童）客製化的「親子與長輩對策」，確保旅途順暢無壓力。
+                </p>
+            </div>
+
+            <div class="space-y-4" id="itinerary-accordion">
+            </div>
+        </section>
+
+        <section id="sec-day3" class="hidden">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-rose-600 border-b-2 border-rose-200 pb-2 mb-4">Day 3 自由行：家族專屬方案</h2>
+                <p class="text-gray-700 leading-relaxed">
+                    第三天為全日自由行，附贈單軌電車一日券。考量到推車移動、長輩體力與 7 人大桌用餐需求，為您設計了三套不同主題的無障礙動線方案。請與家人討論最喜歡的風格！
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4" id="day3-cards">
+            </div>
+        </section>
+
+        <section id="sec-packing" class="hidden">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-indigo-600 border-b-2 border-indigo-200 pb-2 mb-4">攜帶物品檢查表</h2>
+                <p class="text-gray-700 leading-relaxed">
+                    根據手冊第13頁的檢查表與6月氣候建議，我們將靜態清單升級為互動式打卡系統。您可以直接在此勾選已準備好的行李，上方的進度圓餅圖會即時更新，確保全家人沒有遺漏任何重要物品。
+                </p>
+            </div>
+
+            <div class="bg-indigo-50 rounded-2xl p-5 shadow-sm border border-indigo-100 mb-8 flex flex-col md:flex-row items-center gap-6">
+                <div class="w-full md:w-1/2">
+                    <h3 class="font-bold text-lg text-indigo-800 text-center mb-2">行李準備進度</h3>
+                    <div class="chart-container" style="height: 250px; max-height: 250px;">
+                        <canvas id="packingChart"></canvas>
+                    </div>
+                </div>
+                <div class="w-full md:w-1/2 text-center md:text-left">
+                    <div class="text-4xl font-extrabold text-indigo-600" id="packing-percentage">0%</div>
+                    <p class="text-gray-600 mt-2">已完成打包項目。記得隨時回來核對進度喔！</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="packing-categories">
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<script>
+    let activityChartInstance = null;
+    let packingChartInstance = null;
+
+    const itineraryData = [
+        {
+            day: "Day 1",
+            date: "06月03日 (三)",
+            title: "快樂啟航，安頓身心",
+            color: "blue",
+            content: `
+                <div class="space-y-3 mt-3 text-gray-700">
+                    <p><strong>13:55 桃園機場集合：</strong>第二航廈長榮航空20號櫃檯報到。建議提早到讓孩子放電。</p>
+                    <p><strong>16:25 - 18:55 搭乘班機：</strong>BR186 前往那霸。</p>
+                    <p><strong>晚間抵達與入住：</strong>直達「那霸逸林希爾頓飯店」(旭橋站旁)。</p>
+                    <div class="bg-blue-50 p-3 rounded-lg border border-blue-100 mt-2">
+                        <p class="text-blue-800 font-semibold mb-1">💡 家族對策：</p>
+                        <p class="text-sm">機上僅供應簡餐，包包內備妥孩子喜歡的零食。水壺過安檢前清空，入關再裝。安頓後可至飯店樓下超商買限定鮮奶當點心。</p>
+                    </div>
+                </div>
+            `
+        },
+        {
+            day: "Day 2",
+            date: "06月04日 (四)",
+            title: "擁抱海洋，盡情採買",
+            color: "teal",
+            content: `
+                <div class="space-y-3 mt-3 text-gray-700">
+                    <p><strong>上午｜美麗海水族館：</strong>欣賞大鯨鯊與海豚秀。午餐於館內享用自助餐。</p>
+                    <p><strong>下午｜部瀨名海中公園：</strong>搭乘透明玻璃底船，近距離觀賞熱帶魚。</p>
+                    <p><strong>傍晚｜Parco City：</strong>沖繩最大購物中心，晚餐自理，方便逛街。</p>
+                    <div class="bg-teal-50 p-3 rounded-lg border border-teal-100 mt-2">
+                        <p class="text-teal-800 font-semibold mb-1">💡 家族對策：</p>
+                        <p class="text-sm">水族館佔地廣，可借用嬰兒推車。玻璃底船免下水對長輩與幼兒極度友善。Parco City 美食街選擇多(壽司/燒肉)，適合7人直接用餐免找餐廳。</p>
+                    </div>
+                </div>
+            `
+        },
+        {
+            day: "Day 3",
+            date: "06月05日 (五)",
+            title: "全日自由活動 (單軌電車一日券)",
+            color: "yellow",
+            content: `
+                <div class="space-y-3 mt-3 text-gray-700">
+                    <p><strong>建議行程：</strong>國際通、新都心商圈、玉泉洞王國村。</p>
+                    <p><strong>全日安排：</strong>請切換至上方「Day 3 攻略」標籤頁，查看為您特別規劃的三套家族專屬地圖與餐飲方案！</p>
+                    <div class="bg-yellow-50 p-3 rounded-lg border border-yellow-100 mt-2">
+                        <p class="text-yellow-800 font-semibold mb-1">💡 家族對策：</p>
+                        <p class="text-sm">利用飯店旁的旭橋站為起點，推車務必攜帶防雨罩。行程以減少轉乘、確保有電梯與母嬰設施的百貨商場或平坦街道為主。</p>
+                    </div>
+                </div>
+            `
+        },
+        {
+            day: "Day 4",
+            date: "06月06日 (六)",
+            title: "文化祈福，恐龍樂園與賦歸",
+            color: "rose",
+            content: `
+                <div class="space-y-3 mt-3 text-gray-700">
+                    <p><strong>上午｜波之上神宮 & 光伸免稅店：</strong>琉球八社之一祈求平安。</p>
+                    <p><strong>中午｜系滿魚市場：</strong>琳瑯滿目的海產攤位，午餐安排沖繩手打麵定食，也可自費加菜海鮮。</p>
+                    <p><strong>下午｜iias 沖繩豐崎商場：</strong>與水族館結合，頂樓有恐龍主題樂園。</p>
+                    <p><strong>19:55 - 20:30 搭乘班機：</strong>BR185 返回桃園。</p>
+                    <div class="bg-rose-50 p-3 rounded-lg border border-rose-100 mt-2">
+                        <p class="text-rose-800 font-semibold mb-1">💡 家族對策：</p>
+                        <p class="text-sm">系滿魚市場有熟食(烤龍蝦/焗烤海鮮)，不敢吃生食的家人也能大飽口福。iias商場頂樓恐龍樂園是上機前最完美的放電場所！</p>
+                    </div>
+                </div>
+            `
+        }
+    ];
+
+    const day3Plans = [
+        {
+            title: "方案一：經典沖繩精華",
+            subtitle: "傳統市場與奇蹟的一英哩",
+            icon: "🛍️",
+            color: "bg-orange-50 border-orange-200",
+            headerColor: "text-orange-700",
+            route: "06旭橋 ➔ 09牧志 ➔ 07縣政府前",
+            am: "牧志公設市場逛在地海鮮與農特產。",
+            lunch: "市場內2樓食堂 (推薦沖繩苦瓜炒豆腐、控肉麵)",
+            pm: "國際通漫步，驚安殿堂免稅大採購，尋找風獅爺。",
+            dinner: "阿古豬涮涮鍋專賣店 (清甜湯頭，肉片剪碎小孩愛吃)"
+        },
+        {
+            title: "方案二：都會血拚特區",
+            subtitle: "新都心冷氣全方位購物",
+            icon: "🏬",
+            color: "bg-teal-50 border-teal-200",
+            headerColor: "text-teal-700",
+            route: "06旭橋 ➔ 11 Omoromachi ➔ 06旭橋",
+            am: "縣立博物館草地跑跳，前往 Naha Main Place。",
+            lunch: "和風亭 (沙發大座位，有日式定食與兒童餐)",
+            pm: "商場內逛百元館與童裝，超市採買下午茶點心。",
+            dinner: "連鎖迴轉壽司 (平板點餐零壓力，熟食選項多)"
+        },
+        {
+            title: "方案三：雙重享受",
+            subtitle: "小祿站生活圈＋國際通夜遊",
+            icon: "🥩",
+            color: "bg-indigo-50 border-indigo-200",
+            headerColor: "text-indigo-700",
+            route: "06旭橋 ➔ 03小祿 ➔ 07縣政府前",
+            am: "空橋直通 AEON 永旺商場，好推推車，逛嬰兒用品。",
+            lunch: "AEON美食街 (拉麵/章魚燒，7人可各自點餐坐公共區)",
+            pm: "傍晚轉往國際通起點，感受南國夜生活買伴手禮。",
+            dinner: "美式牛排館 (88牛排，寬敞座位，小孩吃軟嫩漢堡排)"
+        }
+    ];
+
+    const packingCategories = [
+        {
+            name: "證照與文件",
+            items: [{name:"護照 (確認效期)", checked:false}, {name:"電子機票/登機證", checked:false}, {name:"錢包 (台幣/日幣)", checked:false}, {name:"入住/票券憑證", checked:false}]
+        },
+        {
+            name: "電子設備",
+            items: [{name:"手機與充電線", checked:false}, {name:"行動電源 (禁放託運)", checked:false}, {name:"轉接頭", checked:false}, {name:"相機/腳架(需小於60cm)", checked:false}]
+        },
+        {
+            name: "衣物與生活用品",
+            items: [{name:"短袖/透氣衣物", checked:false}, {name:"薄防風外套 (防溫差)", checked:false}, {name:"好走的鞋/拖鞋", checked:false}, {name:"雨具 (推車防雨罩必備!)", checked:false}, {name:"太陽眼鏡/防曬乳", checked:false}, {name:"濕紙巾/面紙", checked:false}]
+        },
+        {
+            name: "常用藥品",
+            items: [{name:"感冒藥/腸胃藥", checked:false}, {name:"止痛藥/暈車藥", checked:false}, {name:"蚊蟲藥/小護士", checked:false}, {name:"OK繃", checked:false}]
+        }
+    ];
+
+    function switchTab(tabId) {
+        document.querySelectorAll('main > section').forEach(sec => sec.classList.add('hidden'));
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('bg-white', 'text-orange-500', 'shadow-md');
+            btn.classList.add('bg-white/20');
+        });
+        
+        document.getElementById(`sec-${tabId}`).classList.remove('hidden');
+        const activeBtn = document.getElementById(`tab-${tabId}`);
+        activeBtn.classList.remove('bg-white/20');
+        activeBtn.classList.add('bg-white', 'text-orange-500', 'shadow-md');
+
+        if (tabId === 'overview' && !activityChartInstance) {
+            initActivityChart();
+        }
+        if (tabId === 'packing' && !packingChartInstance) {
+            initPackingChart();
+        }
+    }
+
+    function renderItinerary() {
+        const container = document.getElementById('itinerary-accordion');
+        itineraryData.forEach((data, index) => {
+            const card = document.createElement('div');
+            card.className = "border rounded-2xl overflow-hidden shadow-sm bg-white";
+            card.innerHTML = `
+                <button onclick="toggleAccordion(${index})" class="w-full text-left px-5 py-4 bg-gray-50 hover:bg-gray-100 flex justify-between items-center transition-colors">
+                    <div>
+                        <span class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-${data.color}-100 text-${data.color}-800 mr-2">${data.day}</span>
+                        <span class="font-bold text-gray-800">${data.title}</span>
+                        <span class="text-sm text-gray-500 ml-2 block sm:inline mt-1 sm:mt-0">${data.date}</span>
+                    </div>
+                    <span id="icon-${index}" class="text-gray-400 transform transition-transform text-xl">▼</span>
+                </button>
+                <div id="content-${index}" class="px-5 py-0 max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                    <div class="pb-4">${data.content}</div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    function toggleAccordion(index) {
+        const content = document.getElementById(`content-${index}`);
+        const icon = document.getElementById(`icon-${index}`);
+        if (content.style.maxHeight && content.style.maxHeight !== '0px') {
+            content.style.maxHeight = '0px';
+            icon.style.transform = 'rotate(0deg)';
+        } else {
+            content.style.maxHeight = content.scrollHeight + 'px';
+            icon.style.transform = 'rotate(180deg)';
+        }
+    }
+
+    function renderDay3Plans() {
+        const container = document.getElementById('day3-cards');
+        day3Plans.forEach(plan => {
+            const card = document.createElement('div');
+            card.className = `${plan.color} border rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow flex flex-col h-full`;
+            card.innerHTML = `
+                <div class="text-4xl mb-3">${plan.icon}</div>
+                <h3 class="text-xl font-bold ${plan.headerColor}">${plan.title}</h3>
+                <p class="text-sm font-semibold text-gray-600 mb-3">${plan.subtitle}</p>
+                <div class="bg-white/60 p-2 rounded text-sm text-gray-700 font-mono mb-4 text-center border border-white">
+                    🚇 ${plan.route}
+                </div>
+                <div class="space-y-3 flex-1 text-sm text-gray-700">
+                    <p><span class="font-bold">🌤️ 上午：</span>${plan.am}</p>
+                    <p><span class="font-bold">🍽️ 午餐：</span>${plan.lunch}</p>
+                    <p><span class="font-bold">🌇 下午：</span>${plan.pm}</p>
+                    <p><span class="font-bold">🍲 晚餐：</span>${plan.dinner}</p>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    function renderPackingList() {
+        const container = document.getElementById('packing-categories');
+        container.innerHTML = '';
+        packingCategories.forEach((cat, catIndex) => {
+            const card = document.createElement('div');
+            card.className = "bg-white border border-gray-200 rounded-2xl p-4 shadow-sm";
+            let itemsHtml = cat.items.map((item, itemIndex) => `
+                <label class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded cursor-pointer transition-colors">
+                    <input type="checkbox" class="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300 cursor-pointer" 
+                           ${item.checked ? 'checked' : ''} 
+                           onchange="updatePackingProgress(${catIndex}, ${itemIndex}, this.checked)">
+                    <span class="text-gray-700 ${item.checked ? 'line-through text-gray-400' : ''}">${item.name}</span>
+                </label>
+            `).join('');
+            card.innerHTML = `
+                <h3 class="font-bold text-gray-800 border-b border-gray-100 pb-2 mb-2">📌 ${cat.name}</h3>
+                <div class="space-y-1">${itemsHtml}</div>
+            `;
+            container.appendChild(card);
+        });
+        updatePackingChartDisplay();
+    }
+
+    function updatePackingProgress(catIndex, itemIndex, isChecked) {
+        packingCategories[catIndex].items[itemIndex].checked = isChecked;
+        renderPackingList(); 
+    }
+
+    function initActivityChart() {
+        const ctx = document.getElementById('activityChart').getContext('2d');
+        activityChartInstance = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['購物與免稅 (35%)', '海洋與自然生態 (25%)', '文化與神社 (15%)', '交通與在地觀光 (25%)'],
+                datasets: [{
+                    data: [35, 25, 15, 25],
+                    backgroundColor: ['#fb923c', '#2dd4bf', '#fb7185', '#60a5fa'],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'right', labels: { font: { family: "'Segoe UI', sans-serif" } } },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function getPackingStats() {
+        let total = 0;
+        let checked = 0;
+        packingCategories.forEach(cat => {
+            cat.items.forEach(item => {
+                total++;
+                if (item.checked) checked++;
+            });
+        });
+        return { total, checked, unchecked: total - checked, percentage: total === 0 ? 0 : Math.round((checked / total) * 100) };
+    }
+
+    function updatePackingChartDisplay() {
+        const stats = getPackingStats();
+        document.getElementById('packing-percentage').innerText = `${stats.percentage}%`;
+        
+        if (packingChartInstance) {
+            packingChartInstance.data.datasets[0].data = [stats.checked, stats.unchecked];
+            packingChartInstance.update();
+        }
+    }
+
+    function initPackingChart() {
+        const ctx = document.getElementById('packingChart').getContext('2d');
+        const stats = getPackingStats();
+        packingChartInstance = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['已準備', '未準備'],
+                datasets: [{
+                    data: [stats.checked, stats.unchecked],
+                    backgroundColor: ['#4f46e5', '#e0e7ff'],
+                    borderWidth: 0,
+                    cutout: '75%'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return ` ${context.label}: ${context.raw} 項`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        renderItinerary();
+        renderDay3Plans();
+        renderPackingList();
+        switchTab('overview');
+    });
+</script>
+
+</body>
+</html>
