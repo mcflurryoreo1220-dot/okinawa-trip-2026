@@ -33,13 +33,16 @@
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
+        .animate-pulse-slow {
+            animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
     </style>
 </head>
 <body class="antialiased">
 
-<!-- Chosen Palette: Okinawa Sunset & Ocean Splash (Warm Orange, Soft Coral, Calming Teal, Warm Neutral Background) -->
-<!-- Application Structure Plan: The SPA uses a dashboard-like tabbed navigation structure. Instead of a linear PDF, the information is chunked into four functional views: 'Trip Overview' for a high-level summary and activity balance, 'Daily Itinerary' for detailed schedule tracking, 'Family Day 3 Plans' specifically tailored for the 7-member family's free day options, and an interactive 'Packing Checklist' derived from the report. This task-oriented architecture allows the family to quickly find schedule details on the go, discuss free-day options interactively, and actively track their packing progress, vastly improving usability over a static document. -->
-<!-- Visualization & Content Choices: 1. Activity Balance -> Goal: Inform -> Pie Chart (Chart.js) -> Shows the distribution of activities (Shopping, Nature, Culture) so the family knows what to expect. 2. Packing List Progress -> Goal: Change/Interact -> Doughnut Chart (Chart.js) combined with HTML checkboxes -> Allows the family to actively check off items from the PDF's list and see their visual progress, turning a static list into a functional tool. 3. Interactive Tabs -> Goal: Organize -> HTML/JS -> Keeps the interface clean and prevents overwhelming the user with a 16-page PDF all at once. NO SVG/Mermaid used. -->
+<!-- Chosen Palette: Okinawa Sunset & Ocean Splash (Warm Orange, Soft Coral, Calming Teal, Warm Neutral Background, Red/Yellow for Alerts) -->
+<!-- Application Structure Plan: Added a new functional tab 'Weather & Contingency' based on user request acting as a tour guide. This centralizes critical real-time concerns (typhoon) and mitigates anxiety by providing concrete 'Plan B' alternatives and emergency contacts extracted directly from the source PDF. This elevates the app from a simple itinerary to a comprehensive travel companion. -->
+<!-- Visualization & Content Choices: 1. Weather Alerts -> Goal: Highlight -> HTML/Tailwind Alert Box -> Ensures immediate visibility of potential typhoon impact. 2. 4-Day Forecast -> Goal: Inform -> CSS Grid Cards -> Easy to read daily breakdown. 3. Emergency Contacts -> Goal: Action -> Clickable phone links (tel:) -> Practical utility derived from PDF page 2. Confirming NO SVG/Mermaid used. -->
 <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
 
 <div id="app" class="max-w-4xl mx-auto bg-white min-h-screen shadow-xl overflow-hidden flex flex-col">
@@ -50,6 +53,7 @@
         
         <nav class="flex overflow-x-auto hide-scrollbar gap-2 mt-6 pb-2 justify-start md:justify-center">
             <button onclick="switchTab('overview')" id="tab-overview" class="tab-btn px-4 py-2 rounded-full bg-white/20 hover:bg-white/40 whitespace-nowrap font-medium transition-colors">📊 旅程總覽</button>
+            <button onclick="switchTab('weather')" id="tab-weather" class="tab-btn px-4 py-2 rounded-full bg-white/20 hover:bg-white/40 whitespace-nowrap font-medium transition-colors">🌦️ 天氣與應變</button>
             <button onclick="switchTab('itinerary')" id="tab-itinerary" class="tab-btn px-4 py-2 rounded-full bg-white/20 hover:bg-white/40 whitespace-nowrap font-medium transition-colors">📅 每日行程</button>
             <button onclick="switchTab('day3')" id="tab-day3" class="tab-btn px-4 py-2 rounded-full bg-white/20 hover:bg-white/40 whitespace-nowrap font-medium transition-colors">🚇 Day 3 攻略</button>
             <button onclick="switchTab('packing')" id="tab-packing" class="tab-btn px-4 py-2 rounded-full bg-white/20 hover:bg-white/40 whitespace-nowrap font-medium transition-colors">🎒 準備清單</button>
@@ -58,6 +62,7 @@
 
     <main class="flex-1 p-4 md:p-6 overflow-y-auto">
         
+        <!-- Tab 1: 總覽 -->
         <section id="sec-overview" class="hidden">
             <div class="mb-6">
                 <h2 class="text-2xl font-bold text-orange-600 border-b-2 border-orange-200 pb-2 mb-4">旅程總覽與重點提示</h2>
@@ -81,9 +86,8 @@
                     <h3 class="font-bold text-lg text-teal-800 mb-3">💡 當地資訊與小提醒</h3>
                     <ul class="space-y-2 text-gray-700">
                         <li><span class="font-semibold">時差：</span>比台灣快 1 小時</li>
-                        <li><span class="font-semibold">電壓：</span>100伏特 (與台灣雙平腳插座相同)</li>
-                        <li><span class="font-semibold">免稅規定：</span>滿 5000 日圓可享免稅，消耗品不可在日本境內拆封使用。</li>
-                        <li><span class="font-semibold">氣候：</span>6月上旬屬梅雨季，悶熱易陣雨，必備輕薄外套、雨具與推車防雨罩。</li>
+                        <li><span class="font-semibold">電壓：</span>100伏特 (與台灣相同)</li>
+                        <li><span class="font-semibold">免稅規定：</span>滿 5000 日圓可享免稅，消耗品不可拆封。</li>
                     </ul>
                 </div>
             </div>
@@ -97,38 +101,123 @@
             </div>
         </section>
 
+        <!-- Tab 2: 天氣與應變 (NEW) -->
+        <section id="sec-weather" class="hidden">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-red-500 border-b-2 border-red-200 pb-2 mb-4">天氣與領隊應變指南</h2>
+                <p class="text-gray-700 leading-relaxed">
+                    出門在外安全第一！因應近期天候變化，領隊特別為您整理了天氣預警、雨天備案，以及緊急聯絡資訊。請家人們安心，即使下雨，我們依然有豐富的 Plan B！
+                </p>
+            </div>
+
+            <!-- 颱風警報區塊 -->
+            <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg mb-6 shadow-sm animate-pulse-slow">
+                <div class="flex items-center mb-2">
+                    <span class="text-2xl mr-2">⚠️</span>
+                    <h3 class="text-lg font-bold text-red-800">特別氣象提醒：梅雨及颱風外圍影響</h3>
+                </div>
+                <p class="text-red-700 text-sm">
+                    預計 6/3 - 6/6 期間沖繩天氣較不穩定。請務必攜帶：<span class="font-bold">折疊傘、輕便雨衣、嬰兒推車專用防雨罩</span>。海風較大，出入冷氣房請備妥薄外套。
+                </p>
+            </div>
+
+            <!-- 4天天氣預報預覽 -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+                <div class="bg-white p-4 rounded-xl shadow-sm text-center border border-gray-200">
+                    <p class="text-sm font-bold text-gray-600">6/03 (三) 抵達</p>
+                    <div class="text-3xl my-2">🌧️</div>
+                    <p class="text-gray-800 font-semibold">陣雨 / 24-28°C</p>
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-sm text-center border border-gray-200">
+                    <p class="text-sm font-bold text-gray-600">6/04 (四) 團體</p>
+                    <div class="text-3xl my-2">🌧️</div>
+                    <p class="text-gray-800 font-semibold">雷陣雨 / 25-29°C</p>
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-sm text-center border border-gray-200">
+                    <p class="text-sm font-bold text-gray-600">6/05 (五) 自由</p>
+                    <div class="text-3xl my-2">⛅</div>
+                    <p class="text-gray-800 font-semibold">陰時多雲 / 26-30°C</p>
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-sm text-center border border-gray-200">
+                    <p class="text-sm font-bold text-gray-600">6/06 (六) 返台</p>
+                    <div class="text-3xl my-2">☁️</div>
+                    <p class="text-gray-800 font-semibold">多雲 / 26-29°C</p>
+                </div>
+            </div>
+
+            <!-- 領隊 Plan B -->
+            <div class="bg-blue-50 rounded-2xl p-5 shadow-sm border border-blue-100 mb-6">
+                <h3 class="font-bold text-lg text-blue-800 mb-3">🛡️ 領隊專屬雨天備案 (Plan B)</h3>
+                <ul class="space-y-4 text-gray-700">
+                    <li class="flex items-start">
+                        <span class="text-xl mr-3 mt-1">🐋</span>
+                        <div>
+                            <p class="font-bold text-blue-900">Day 2：若部瀨名玻璃底船因風浪停駛</p>
+                            <p class="text-sm">別擔心！水族館是全室內的，我們能拉長在「美麗海水族館」停留的時間，或者提早前往「Parco City」讓大家有更充足的時間在室內免稅血拚！</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-xl mr-3 mt-1">🚇</span>
+                        <div>
+                            <p class="font-bold text-blue-900">Day 3：自由行遇大雨怎麼辦？</p>
+                            <p class="text-sm">強烈建議直接採取 <span class="font-bold text-indigo-600">「方案二 (新都心 Naha Main Place)」</span> 或 <span class="font-bold text-indigo-600">「方案三 (小祿站 AEON)」</span>。這兩個方案幾乎全程在室內，推車不用淋雨，長輩也有地方休息喝咖啡。</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 緊急聯絡網 (資料來自手冊 P.2) -->
+            <div class="bg-gray-100 rounded-xl p-5 shadow-inner border border-gray-200">
+                <h3 class="font-bold text-lg text-gray-800 mb-3">📞 緊急聯絡資訊</h3>
+                <div class="flex flex-col md:flex-row gap-4">
+                    <a href="tel:093306820" class="flex-1 bg-white p-3 rounded-lg flex items-center justify-between hover:bg-gray-50 transition border border-gray-300">
+                        <div>
+                            <p class="text-xs text-gray-500">隨團領隊</p>
+                            <p class="font-bold text-gray-800">賴靖依</p>
+                        </div>
+                        <div class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-bold">撥打 0933-068-20</div>
+                    </a>
+                    <a href="tel:0955245055" class="flex-1 bg-white p-3 rounded-lg flex items-center justify-between hover:bg-gray-50 transition border border-gray-300">
+                        <div>
+                            <p class="text-xs text-gray-500">五福旅遊承辦人</p>
+                            <p class="font-bold text-gray-800">陳翊萱</p>
+                        </div>
+                        <div class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-bold">撥打 0955-245-055</div>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab 3: 每日行程 -->
         <section id="sec-itinerary" class="hidden">
             <div class="mb-6">
                 <h2 class="text-2xl font-bold text-teal-600 border-b-2 border-teal-200 pb-2 mb-4">每日行程細節</h2>
                 <p class="text-gray-700 leading-relaxed">
-                    本區塊將旅行社手冊的行程表轉化為可互動的每日卡片。點擊每一天，即可展開詳細的景點介紹、餐食安排，以及專為您 7 口之家（包含長輩與推車孩童）客製化的「親子與長輩對策」，確保旅途順暢無壓力。
+                    本區塊將旅行社手冊的行程表轉化為可互動的每日卡片。點擊每一天，即可展開詳細的景點介紹、餐食安排，以及專為您 7 口之家客製化的「親子與長輩對策」。
                 </p>
             </div>
-
-            <div class="space-y-4" id="itinerary-accordion">
-            </div>
+            <div class="space-y-4" id="itinerary-accordion"></div>
         </section>
 
+        <!-- Tab 4: Day 3 攻略 -->
         <section id="sec-day3" class="hidden">
             <div class="mb-6">
                 <h2 class="text-2xl font-bold text-rose-600 border-b-2 border-rose-200 pb-2 mb-4">Day 3 自由行：家族專屬方案</h2>
                 <p class="text-gray-700 leading-relaxed">
-                    第三天為全日自由行，附贈單軌電車一日券。考量到推車移動、長輩體力與 7 人大桌用餐需求，為您設計了三套不同主題的無障礙動線方案。請與家人討論最喜歡的風格！
+                    第三天為全日自由行，附贈單軌電車一日券。考量到推車移動、長輩體力與 7 人大桌用餐需求，為您設計了三套不同主題的無障礙動線方案。
                 </p>
             </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4" id="day3-cards">
-            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4" id="day3-cards"></div>
         </section>
 
+        <!-- Tab 5: 準備清單 -->
         <section id="sec-packing" class="hidden">
             <div class="mb-6">
                 <h2 class="text-2xl font-bold text-indigo-600 border-b-2 border-indigo-200 pb-2 mb-4">攜帶物品檢查表</h2>
                 <p class="text-gray-700 leading-relaxed">
-                    根據手冊第13頁的檢查表與6月氣候建議，我們將靜態清單升級為互動式打卡系統。您可以直接在此勾選已準備好的行李，上方的進度圓餅圖會即時更新，確保全家人沒有遺漏任何重要物品。
+                    請直接勾選已準備好的行李，上方的進度圖會即時更新。別忘了再次確認防雨裝備喔！
                 </p>
             </div>
-
             <div class="bg-indigo-50 rounded-2xl p-5 shadow-sm border border-indigo-100 mb-8 flex flex-col md:flex-row items-center gap-6">
                 <div class="w-full md:w-1/2">
                     <h3 class="font-bold text-lg text-indigo-800 text-center mb-2">行李準備進度</h3>
@@ -141,9 +230,7 @@
                     <p class="text-gray-600 mt-2">已完成打包項目。記得隨時回來核對進度喔！</p>
                 </div>
             </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="packing-categories">
-            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="packing-categories"></div>
         </section>
 
     </main>
@@ -199,7 +286,7 @@
                     <p><strong>全日安排：</strong>請切換至上方「Day 3 攻略」標籤頁，查看為您特別規劃的三套家族專屬地圖與餐飲方案！</p>
                     <div class="bg-yellow-50 p-3 rounded-lg border border-yellow-100 mt-2">
                         <p class="text-yellow-800 font-semibold mb-1">💡 家族對策：</p>
-                        <p class="text-sm">利用飯店旁的旭橋站為起點，推車務必攜帶防雨罩。行程以減少轉乘、確保有電梯與母嬰設施的百貨商場或平坦街道為主。</p>
+                        <p class="text-sm">利用飯店旁的旭橋站為起點，推車務必攜帶防雨罩。若遇雨天，請參考「天氣與應變」頁面的室內備案。</p>
                     </div>
                 </div>
             `
@@ -273,8 +360,8 @@
             items: [{name:"手機與充電線", checked:false}, {name:"行動電源 (禁放託運)", checked:false}, {name:"轉接頭", checked:false}, {name:"相機/腳架(需小於60cm)", checked:false}]
         },
         {
-            name: "衣物與生活用品",
-            items: [{name:"短袖/透氣衣物", checked:false}, {name:"薄防風外套 (防溫差)", checked:false}, {name:"好走的鞋/拖鞋", checked:false}, {name:"雨具 (推車防雨罩必備!)", checked:false}, {name:"太陽眼鏡/防曬乳", checked:false}, {name:"濕紙巾/面紙", checked:false}]
+            name: "必備！防雨與生活用品",
+            items: [{name:"短袖/透氣衣物", checked:false}, {name:"薄防風外套 (防冷氣/海風)", checked:false}, {name:"好走的鞋/不怕水的鞋", checked:false}, {name:"輕便雨衣/折疊傘", checked:false}, {name:"推車專用防雨罩", checked:false}, {name:"防曬乳/濕紙巾", checked:false}]
         },
         {
             name: "常用藥品",
