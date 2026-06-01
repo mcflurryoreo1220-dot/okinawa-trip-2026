@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -117,6 +116,10 @@
                     <p class="font-bold text-blue-800">🌧️ 雨天神救援：Day 2 提早去 Parco City 室內血拚。Day 3 善用旭橋巴士總站直達大型商場或沖繩縣立博物館！</p>
                 </div>
             </div>
+            <div class="bg-white rounded-[2rem] p-6 md:p-8 shadow-lg border border-gray-100 mb-8">
+                <h3 class="font-black text-xl md:text-2xl text-gray-800 mb-2 text-center">行程活動類型分佈預測</h3>
+                <div class="chart-container"><canvas id="activityChart"></canvas></div>
+            </div>
         </section>
 
         <!-- Tab 2: 每日行程 (精緻時間軸版) -->
@@ -191,6 +194,33 @@
                     <div class="bg-amber-50 p-4 md:p-5 rounded-2xl text-center border border-amber-200 hover-card"><div class="text-3xl md:text-4xl mb-2">🥒</div><p class="font-black text-gray-800 text-base md:text-lg">苦瓜炒什錦</p><p class="text-xs md:text-sm text-gray-600 mt-1">下飯極品沖繩家常菜</p></div>
                     <div class="bg-amber-50 p-4 md:p-5 rounded-2xl text-center border border-amber-200 hover-card"><div class="text-3xl md:text-4xl mb-2">🍺</div><p class="font-black text-gray-800 text-base md:text-lg">Orion 啤酒</p><p class="text-xs md:text-sm text-gray-600 mt-1">在地專屬生啤</p></div>
                     <div class="bg-blue-50 p-4 md:p-5 rounded-2xl text-center border border-blue-200 hover-card"><div class="text-3xl md:text-4xl mb-2">🍦</div><p class="font-black text-blue-800 text-base md:text-lg">Blue Seal 冰</p><p class="text-xs md:text-sm text-blue-600 mt-1">國際通必吃美式冰品</p></div>
+                </div>
+            </div>
+
+            <!-- 新增：藥妝與超市必買 -->
+            <div class="mb-10 md:mb-12">
+                <h3 class="text-2xl md:text-3xl font-black text-rose-800 mb-4 md:mb-6 flex items-center border-l-8 border-rose-500 pl-3 md:pl-4"><span class="text-3xl md:text-4xl mr-2 md:mr-3">🛒</span> 超市與藥妝必掃清單</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                    <div class="bg-rose-50 p-5 rounded-3xl border border-rose-200 shadow-sm">
+                        <h4 class="font-black text-lg text-rose-900 mb-3 flex items-center"><span class="text-2xl mr-2">💊</span> 長輩最愛藥妝</h4>
+                        <ul class="space-y-2 text-sm md:text-base text-gray-700 font-medium">
+                            <li class="flex items-center"><span class="bg-white p-1 rounded shadow-sm mr-2">✔️</span> 合力他命 EX Plus (注意限購數量)</li>
+                            <li class="flex items-center"><span class="bg-white p-1 rounded shadow-sm mr-2">✔️</span> 大正百保能 (金A微粒)</li>
+                            <li class="flex items-center"><span class="bg-white p-1 rounded shadow-sm mr-2">✔️</span> EVE 止痛藥 (各種顏色包裝)</li>
+                            <li class="flex items-center"><span class="bg-white p-1 rounded shadow-sm mr-2">✔️</span> ROIHI-TSUBOKO 溫感貼布</li>
+                        </ul>
+                        <p class="mt-4 text-xs text-rose-600 font-bold bg-white p-2 rounded-lg">💡 提示：國際通的大國藥妝或驚安殿堂皆可買齊，滿 ¥5000 即可免稅！</p>
+                    </div>
+                    <div class="bg-blue-50 p-5 rounded-3xl border border-blue-200 shadow-sm">
+                        <h4 class="font-black text-lg text-blue-900 mb-3 flex items-center"><span class="text-2xl mr-2">🍫</span> 超市/超商宵夜點心</h4>
+                        <ul class="space-y-2 text-sm md:text-base text-gray-700 font-medium">
+                            <li class="flex items-center"><span class="bg-white p-1 rounded shadow-sm mr-2">✔️</span> 沖繩限定 100% 鮮乳 (紅黃色包裝)</li>
+                            <li class="flex items-center"><span class="bg-white p-1 rounded shadow-sm mr-2">✔️</span> LAWSON 炸雞塊 (Lチキ)</li>
+                            <li class="flex items-center"><span class="bg-white p-1 rounded shadow-sm mr-2">✔️</span> 沖繩限定 紅芋塔 (御菓子御殿)</li>
+                            <li class="flex items-center"><span class="bg-white p-1 rounded shadow-sm mr-2">✔️</span> 沖繩限定 金楚糕 (ちんすこう)</li>
+                        </ul>
+                        <p class="mt-4 text-xs text-blue-600 font-bold bg-white p-2 rounded-lg">💡 提示：回飯店前去旭橋站旁邊的便利商店買最方便！</p>
+                    </div>
                 </div>
             </div>
 
@@ -385,7 +415,8 @@
         renderTimeline(); 
         renderDay3Plans(); 
         renderExpenses();
-        switchTab('overview'); 
+        // Trigger initial tab rendering correctly
+        setTimeout(() => switchTab('overview'), 100); 
     });
 
     function loadDataFromStorage() {
@@ -425,9 +456,15 @@
         activeBtn.classList.remove('bg-white/20');
         activeBtn.classList.add('bg-white', 'text-orange-600', 'shadow-[0_0_15px_rgba(255,255,255,0.6)]', 'scale-105');
 
-        if (tabId === 'overview' && !activityChartInstance) initActivityChart();
+        if (tabId === 'overview') {
+            setTimeout(() => {
+                if (!activityChartInstance) initActivityChart();
+            }, 50);
+        }
         if (tabId === 'packing') {
-            if (!packingChartInstance) initPackingChart();
+            setTimeout(() => {
+                if (!packingChartInstance) initPackingChart();
+            }, 50);
             renderMemberTabs(); renderPackingList();
         }
         scrollToTop();
@@ -436,7 +473,7 @@
     // --- Timeline Rendering ---
     function renderTimeline() {
         const container = document.getElementById('timeline-container-render');
-        if (container.innerHTML.trim() !== '') return; 
+        if (!container || container.innerHTML.trim() !== '') return; 
         
         let html = '';
         timelineData.forEach(day => {
@@ -472,7 +509,7 @@
 
     function renderDay3Plans() {
         const container = document.getElementById('day3-cards');
-        if(container.innerHTML.trim() !== '') return;
+        if(!container || container.innerHTML.trim() !== '') return;
         
         let html = '';
         day3Plans.forEach(plan => {
@@ -620,14 +657,18 @@
     }
 
     function initPackingChart() {
-        packingChartInstance = new Chart(document.getElementById('packingChart').getContext('2d'), {
+        const canvas = document.getElementById('packingChart');
+        if (!canvas) return; // Guard clause
+        packingChartInstance = new Chart(canvas.getContext('2d'), {
             type: 'doughnut', data: { labels: ['已準備', '未準備'], datasets: [{data: [0, 1], backgroundColor: ['#4f46e5', '#e0e7ff'], borderWidth: 0, cutout: '75%', borderRadius: 10}] },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, animation: {duration: 0} }
         });
     }
 
     function initActivityChart() {
-        activityChartInstance = new Chart(document.getElementById('activityChart').getContext('2d'), {
+        const canvas = document.getElementById('activityChart');
+        if (!canvas) return; // Guard clause
+        activityChartInstance = new Chart(canvas.getContext('2d'), {
             type: 'pie', data: { labels: ['購物與免稅 (35%)', '海洋生態 (25%)', '在地觀光 (25%)', '文化神社 (15%)'], datasets: [{data: [35, 25, 25, 15], backgroundColor: ['#fb923c', '#2dd4bf', '#60a5fa', '#fb7185'], borderWidth: 4, borderColor: '#ffffff', hoverOffset: 10}] },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 14, family: "'Segoe UI', sans-serif", weight: 'bold' } } } } }
         });
