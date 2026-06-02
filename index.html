@@ -456,17 +456,16 @@
         activeBtn.classList.remove('bg-white/20');
         activeBtn.classList.add('bg-white', 'text-orange-600', 'shadow-[0_0_15px_rgba(255,255,255,0.6)]', 'scale-105');
 
-        if (tabId === 'overview') {
-            setTimeout(() => {
-                if (!activityChartInstance) initActivityChart();
-            }, 50);
-        }
-        if (tabId === 'packing') {
-            setTimeout(() => {
+        // 加入微小延遲，確保 DOM 完全顯示後再初始化圖表
+        setTimeout(() => {
+            if (tabId === 'overview' && !activityChartInstance) initActivityChart();
+            if (tabId === 'packing') {
                 if (!packingChartInstance) initPackingChart();
-            }, 50);
-            renderMemberTabs(); renderPackingList();
-        }
+                renderMemberTabs(); renderPackingList();
+            }
+        }, 50);
+        
+        // 切換分頁時自動回到頂部
         scrollToTop();
     }
 
@@ -658,7 +657,8 @@
 
     function initPackingChart() {
         const canvas = document.getElementById('packingChart');
-        if (!canvas) return; // Guard clause
+        if (!canvas) return; // 安全檢查：若找不到元素則跳出
+        
         packingChartInstance = new Chart(canvas.getContext('2d'), {
             type: 'doughnut', data: { labels: ['已準備', '未準備'], datasets: [{data: [0, 1], backgroundColor: ['#4f46e5', '#e0e7ff'], borderWidth: 0, cutout: '75%', borderRadius: 10}] },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, animation: {duration: 0} }
@@ -667,7 +667,8 @@
 
     function initActivityChart() {
         const canvas = document.getElementById('activityChart');
-        if (!canvas) return; // Guard clause
+        if (!canvas) return; // 安全檢查：若找不到元素則跳出
+        
         activityChartInstance = new Chart(canvas.getContext('2d'), {
             type: 'pie', data: { labels: ['購物與免稅 (35%)', '海洋生態 (25%)', '在地觀光 (25%)', '文化神社 (15%)'], datasets: [{data: [35, 25, 25, 15], backgroundColor: ['#fb923c', '#2dd4bf', '#60a5fa', '#fb7185'], borderWidth: 4, borderColor: '#ffffff', hoverOffset: 10}] },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 14, family: "'Segoe UI', sans-serif", weight: 'bold' } } } } }
